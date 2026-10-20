@@ -3,14 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Premier League Predictor — Live Edition</title>
+<title>Premier League Predictor — Supabase Live Edition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<!-- FIREBASE COMPAT SDK FOR REAL-TIME GLOBAL SYNC -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<!-- SUPABASE CLIENT SDK FOR REAL-TIME POSTGRES SYNC -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root {
@@ -39,6 +38,7 @@
   --blue-light: #eff6ff;
   --purple: #8b5cf6;
   --purple-light: #f5f3ff;
+  --emerald-supabase: #3ecf8e;
   --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
   --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
   --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
@@ -359,6 +359,15 @@ button { cursor: pointer; }
 
 .btn-danger:hover {
   background: #dc2626;
+}
+
+.btn-supabase {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.btn-supabase:hover {
+  background: #059669;
 }
 
 .btn-sm {
@@ -1082,29 +1091,69 @@ button { cursor: pointer; }
     <div class="admin-header">
       <div>
         <h3 style="color:#6d28d9">⚙️ Pengaturan Admin (Akses Terbuka)</h3>
-        <p class="panel-sub">Atur database cloud, batas waktu prediksi, kelola peserta, & upload skor akhir.</p>
+        <p class="panel-sub">Atur database Supabase, batas waktu prediksi, kelola peserta, & upload skor akhir.</p>
       </div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-secondary btn-sm" id="lockAdminBtn">🔒 Kunci & Tutup Admin</button>
       </div>
     </div>
 
-    <!-- 1. FIREBASE REALTIME DATABASE CONFIGURATION -->
+    <!-- 1. SUPABASE CONFIGURATION -->
     <div style="background:#ffffff;padding:18px;border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:16px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-        <div>
-          <h4 style="font-size:14px;font-weight:700">🔥 Hubungkan Firebase (Sinkronisasi Global Antar HP)</h4>
-          <p style="font-size:12px;color:var(--text-muted)">Tanpa Firebase, data hanya tersimpan di HP masing-masing. Masukkan config Firebase di sini agar langsung live-sync ke semua teman!</p>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:18px">⚡</span>
+          <div>
+            <h4 style="font-size:14px;font-weight:700">Hubungkan Supabase (Vercel Database)</h4>
+            <p style="font-size:12px;color:var(--text-muted)">Masukkan Project URL & Anon Key dari project Supabase Anda agar semua teman tersinkron real-time!</p>
+          </div>
         </div>
-        <span class="pill" id="firebaseConfigBadge" style="background:#f1f5f9;color:var(--text-muted)">Belum Terhubung</span>
+        <span class="pill" id="supabaseConfigBadge" style="background:#f1f5f9;color:var(--text-muted)">Belum Terhubung</span>
       </div>
-      <div style="margin-bottom:10px">
-        <textarea id="firebaseConfigInput" class="field" rows="3" style="font-family:monospace;font-size:12px" placeholder="Paste objek firebaseConfig dari Firebase Console di sini..."></textarea>
+
+      <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:10px;margin-bottom:10px">
+        <div>
+          <label class="label" style="margin-bottom:4px">Project URL</label>
+          <input type="text" id="supabaseUrlInput" class="field" placeholder="https://xxxx.supabase.co" style="font-size:12px">
+        </div>
+        <div>
+          <label class="label" style="margin-bottom:4px">Anon Public API Key</label>
+          <input type="text" id="supabaseKeyInput" class="field" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." style="font-size:12px">
+        </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-sm" id="saveFirebaseConfigBtn">💾 Simpan & Hubungkan Database</button>
-        <button class="btn btn-secondary btn-sm" id="testFirebaseBtn">🔄 Tes Koneksi</button>
-        <button class="btn btn-secondary btn-sm" id="clearFirebaseConfigBtn">Putuskan</button>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-sm btn-supabase" id="saveSupabaseConfigBtn">💾 Simpan & Hubungkan Supabase</button>
+        <button class="btn btn-secondary btn-sm" id="testSupabaseBtn">🔄 Tes Koneksi</button>
+        <button class="btn btn-secondary btn-sm" id="clearSupabaseConfigBtn">Putuskan</button>
+        <button class="btn btn-secondary btn-sm" id="toggleSqlHelperBtn" style="margin-left:auto">📜 Lihat SQL Setup Tabel (1x Saja)</button>
+      </div>
+
+      <!-- SQL SETUP HELPER (COLLAPSIBLE) -->
+      <div id="sqlHelperBox" style="display:none;margin-top:14px;padding:12px;background:#f8fafc;border-radius:8px;border:1px dashed var(--border)">
+        <p style="font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text-main)">Salin dan Jalankan SQL ini di menu <strong>SQL Editor</strong> Supabase Anda (hanya perlu 1x):</p>
+        <textarea id="sqlCodeSnippet" readonly rows="7" style="width:100%;font-family:monospace;font-size:11px;padding:8px;border:1px solid var(--border);border-radius:6px;background:#ffffff;resize:vertical">
+create table if not exists pl_store (
+  key text primary key,
+  value jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table pl_store enable row level security;
+drop policy if exists "Allow all" on pl_store;
+create policy "Allow all" on pl_store for all using (true) with check (true);
+
+alter publication supabase_realtime add table pl_store;
+
+insert into pl_store (key, value) values
+  ('config', '{"deadline":""}'),
+  ('scores', '{}'),
+  ('players', '{}')
+on conflict (key) do nothing;
+</textarea>
+        <div style="margin-top:6px;text-align:right">
+          <button class="btn btn-sm btn-secondary" id="copySqlBtn">📋 Salin Perintah SQL</button>
+        </div>
       </div>
     </div>
 
@@ -1224,7 +1273,7 @@ button { cursor: pointer; }
           <input class="field" id="participantName" maxlength="20" placeholder="Ketik namamu...">
           <button class="btn" id="saveNameBtn">Simpan</button>
         </div>
-        <p style="font-size:11px;color:var(--text-muted);margin-top:8px">Tanpa login ribet. Nama & tebakan langsung tersimpan ke cloud.</p>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:8px">Tanpa login ribet. Nama & tebakan langsung tersimpan ke cloud Supabase.</p>
       </div>
 
       <div class="rules-mini">
@@ -1279,7 +1328,7 @@ button { cursor: pointer; }
     <section id="leaderboardSection" style="display:none">
       <div class="section-head">
         <div>
-          <h3>🏆 Klasemen Bersama (Real-Time)</h3>
+          <h3>🏆 Klasemen Bersama (Supabase Real-Time)</h3>
           <p>Peringkat langsung terupdate otomatis saat ada teman yang submit atau admin isi skor.</p>
         </div>
       </div>
@@ -1354,9 +1403,9 @@ const FIXTURES = [
   { id: "sun-lee", home: "Sunderland", away: "Leeds", h: "SUN", a: "LEE", date: "Minggu, 25 Okt", time: "23.30 WIB" }
 ];
 
-// STATE STORAGE & KEYS
+// STORAGE KEYS
 const STORAGE_KEY = "pl_predictor_v2_light";
-const FB_CONFIG_KEY = "pl_predictor_firebase_config";
+const SUPABASE_CONFIG_KEY = "pl_predictor_supabase_config";
 const USER_ID_KEY = "pl_predictor_my_id";
 const ADMIN_PASSWORD = "4312";
 
@@ -1400,17 +1449,17 @@ function saveState() {
 const $ = (id) => document.getElementById(id);
 
 // -------------------------------------------------------------
-// FIREBASE REAL-TIME CLOUD DATABASE INTEGRATION
+// SUPABASE REAL-TIME CLOUD DATABASE INTEGRATION
 // -------------------------------------------------------------
-let firebaseDb = null;
-let isFirebaseOnline = false;
+let supabaseClient = null;
+let isSupabaseOnline = false;
 
 function updateSyncBadge(online, text = "") {
   const badge = $("syncStatusBadge");
-  const cfgBadge = $("firebaseConfigBadge");
+  const cfgBadge = $("supabaseConfigBadge");
   if (online) {
     badge.className = "pill pill-sync connected";
-    badge.innerHTML = "🟢 Live Sync Global (Online)";
+    badge.innerHTML = "🟢 Supabase Live Sync (Online)";
     if (cfgBadge) {
       cfgBadge.style.background = "#ecfdf5";
       cfgBadge.style.color = "#047857";
@@ -1427,111 +1476,167 @@ function updateSyncBadge(online, text = "") {
   }
 }
 
-function initFirebaseSync(cfgObj) {
+async function initSupabaseSync(url, key) {
   try {
-    if (!cfgObj || !cfgObj.databaseURL) {
-      updateSyncBadge(false, "🟡 Mode Lokal (Belum Ada Database)");
+    if (!url || !key || !window.supabase) {
+      updateSyncBadge(false, "🟡 Hubungkan Supabase di Panel Admin");
       return false;
     }
-    if (!firebase.apps.length) {
-      firebase.initializeApp(cfgObj);
+
+    supabaseClient = window.supabase.createClient(url.trim(), key.trim());
+
+    // Test fetch pl_store
+    const { data, error } = await supabaseClient.from("pl_store").select("*");
+    if (error) {
+      console.warn("Supabase fetch warning:", error);
+      // Might be that table is not yet created, let user know
+      if (error.code === "42P01") {
+        updateSyncBadge(false, "⚠️ Tabel pl_store belum dibuat");
+        showNotice("⚠️ Tabel database belum dibuat! Buka Panel Admin ➜ Klik 'Lihat SQL Setup Tabel' untuk membuatnya.", true);
+        return false;
+      }
+      updateSyncBadge(false, "❌ Error Supabase: " + (error.message || "Gagal"));
+      return false;
     }
-    firebaseDb = firebase.database();
-    isFirebaseOnline = true;
+
+    isSupabaseOnline = true;
     updateSyncBadge(true);
 
-    // 1. LISTEN TO DEADLINE / CONFIG
-    firebaseDb.ref("pl_predictor/config/deadline").on("value", snapshot => {
-      const val = snapshot.val();
-      if (val !== undefined && val !== null) {
-        state.deadline = val;
-        saveState();
-        updateDeadlineUI();
-        renderMatches();
-      }
-    });
+    // Apply fetched data
+    applySupabaseStoreData(data);
 
-    // 2. LISTEN TO SCORES
-    firebaseDb.ref("pl_predictor/scores").on("value", snapshot => {
-      const val = snapshot.val() || {};
-      state.scores = val;
-      saveState();
-      renderMatches();
-      renderLeaderboard();
-      renderAdminScores();
-      renderAdminUsers();
-    });
+    // LISTEN TO REAL-TIME POSTGRES CHANGES
+    supabaseClient
+      .channel("pl_store_channel")
+      .on("postgres_changes", { event: "*", schema: "public", table: "pl_store" }, payload => {
+        const row = payload.new;
+        if (!row || !row.key) return;
 
-    // 3. LISTEN TO ALL PLAYERS
-    firebaseDb.ref("pl_predictor/players").on("value", snapshot => {
-      const val = snapshot.val() || {};
-      const cloudPlayers = [];
-
-      Object.keys(val).forEach(k => {
-        const p = val[k];
-        if (k === myUserId) {
-          // If my own record exists in cloud
-          if (!state.name && p.name) {
-            state.name = p.name;
-            $("participantName").value = p.name;
-          }
-          if (Object.keys(p.picks || {}).length > 0 && Object.keys(state.picks || {}).length === 0) {
-            state.picks = p.picks;
-          }
-        } else {
-          cloudPlayers.push({
-            id: k,
-            name: p.name || "Peserta",
-            picks: p.picks || {},
-            isDemo: false
-          });
+        if (row.key === "config") {
+          state.deadline = row.value?.deadline || "";
+          saveState();
+          updateDeadlineUI();
+          renderMatches();
+        } else if (row.key === "scores") {
+          state.scores = row.value || {};
+          saveState();
+          renderMatches();
+          renderLeaderboard();
+          renderAdminScores();
+          renderAdminUsers();
+        } else if (row.key === "players") {
+          processCloudPlayers(row.value || {});
+        }
+      })
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          console.log("Supabase Realtime Subscribed!");
         }
       });
 
-      // Keep demo players only if no cloud players exist
-      if (cloudPlayers.length > 0) {
-        state.otherPlayers = cloudPlayers;
-      }
-
-      saveState();
-      renderMatches();
-      renderLeaderboard();
-      renderAdminUsers();
-    });
-
     return true;
   } catch (err) {
-    console.error("Firebase init error:", err);
-    updateSyncBadge(false, "❌ Koneksi Database Gagal");
+    console.error("Supabase init error:", err);
+    updateSyncBadge(false, "❌ Gagal koneksi Supabase");
     return false;
   }
 }
 
-// Check saved Firebase config from localStorage or default
-const savedFbConfig = localStorage.getItem(FB_CONFIG_KEY);
-if (savedFbConfig) {
-  try {
-    const parsedCfg = JSON.parse(savedFbConfig);
-    initFirebaseSync(parsedCfg);
-    if ($("firebaseConfigInput")) {
-      $("firebaseConfigInput").value = JSON.stringify(parsedCfg, null, 2);
+function applySupabaseStoreData(rows) {
+  if (!Array.isArray(rows)) return;
+  rows.forEach(r => {
+    if (r.key === "config") {
+      if (r.value?.deadline !== undefined) {
+        state.deadline = r.value.deadline;
+      }
+    } else if (r.key === "scores") {
+      if (r.value) {
+        state.scores = r.value;
+      }
+    } else if (r.key === "players") {
+      processCloudPlayers(r.value || {});
     }
-  } catch (e) {}
-} else {
-  updateSyncBadge(false, "🟡 Hubungkan Database Cloud");
+  });
+
+  saveState();
+  updateDeadlineUI();
+  renderMatches();
+  renderLeaderboard();
+  renderAdminScores();
+  renderAdminUsers();
 }
 
-// PUSH LOCAL PLAYER PICKS TO CLOUD
-function pushMyPicksToCloud() {
-  if (!firebaseDb || !isFirebaseOnline) return;
+function processCloudPlayers(playersMap) {
+  const cloudPlayers = [];
+  Object.keys(playersMap).forEach(k => {
+    const p = playersMap[k];
+    if (k === myUserId) {
+      if (!state.name && p.name) {
+        state.name = p.name;
+        $("participantName").value = p.name;
+      }
+      if (Object.keys(p.picks || {}).length > 0 && Object.keys(state.picks || {}).length === 0) {
+        state.picks = p.picks;
+      }
+    } else {
+      cloudPlayers.push({
+        id: k,
+        name: p.name || "Peserta",
+        picks: p.picks || {},
+        isDemo: false
+      });
+    }
+  });
+
+  if (cloudPlayers.length > 0) {
+    state.otherPlayers = cloudPlayers;
+  }
+
+  saveState();
+  renderMatches();
+  renderLeaderboard();
+  renderAdminUsers();
+}
+
+// PUSH MY PICKS TO SUPABASE CLOUD
+async function pushMyPicksToSupabase() {
+  if (!supabaseClient || !isSupabaseOnline) return;
   const myName = (state.name || "").trim();
   if (!myName) return;
 
-  firebaseDb.ref("pl_predictor/players/" + myUserId).set({
-    name: myName,
-    picks: state.picks || {},
-    updatedAt: Date.now()
-  });
+  try {
+    // Get existing players first
+    const { data } = await supabaseClient.from("pl_store").select("value").eq("key", "players").single();
+    const currentPlayers = data?.value || {};
+    currentPlayers[myUserId] = {
+      name: myName,
+      picks: state.picks || {},
+      updatedAt: Date.now()
+    };
+
+    await supabaseClient.from("pl_store").upsert({
+      key: "players",
+      value: currentPlayers,
+      updated_at: new Date().toISOString()
+    });
+  } catch (e) {
+    console.error("Supabase push error:", e);
+  }
+}
+
+// CHECK SAVED SUPABASE CONFIG
+const savedSbConfig = localStorage.getItem(SUPABASE_CONFIG_KEY);
+if (savedSbConfig) {
+  try {
+    const { url, key } = JSON.parse(savedSbConfig);
+    if (url && key) {
+      if ($("supabaseUrlInput")) $("supabaseUrlInput").value = url;
+      if ($("supabaseKeyInput")) $("supabaseKeyInput").value = key;
+      initSupabaseSync(url, key);
+    }
+  } catch (e) {}
+} else {
+  updateSyncBadge(false, "🟡 Hubungkan Supabase di Panel Admin");
 }
 
 // -------------------------------------------------------------
@@ -1681,7 +1786,7 @@ function renderMatches() {
       }
 
       saveState();
-      pushMyPicksToCloud();
+      pushMyPicksToSupabase();
       renderMatches();
       updateCounts();
       renderLeaderboard();
@@ -1746,7 +1851,7 @@ function updateDeadlineUI() {
 function calculateLeaderboard() {
   const players = [];
 
-  // Add current user if name is present
+  // Add current user
   const myName = (state.name || "").trim() || "Saya (Tamu)";
   players.push({
     id: myUserId,
@@ -1837,8 +1942,8 @@ function renderLeaderboard() {
   fullEl.innerHTML = `
     <div style="margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
       <p style="font-size:13px;color:var(--text-muted)">Total pertandingan yang sudah selesai: <strong>${finishedCount} dari ${FIXTURES.length}</strong></p>
-      <span style="font-size:12px;color:${isFirebaseOnline ? 'var(--green-text)' : 'var(--text-muted)'};font-weight:700">
-        ${isFirebaseOnline ? '● Tersinkron Otomatis (Cloud)' : '○ Mode Lokal'}
+      <span style="font-size:12px;color:${isSupabaseOnline ? 'var(--green-text)' : 'var(--text-muted)'};font-weight:700">
+        ${isSupabaseOnline ? '● Supabase Live Real-Time' : '○ Mode Lokal'}
       </span>
     </div>
     ${leaderboard.map((p, idx) => `
@@ -1919,27 +2024,36 @@ function renderAdminUsers() {
 
   // Attach delete handlers
   tbody.querySelectorAll(".delete-user-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const uId = btn.dataset.id;
       const uName = btn.dataset.name;
       const isMe = btn.dataset.isme === "true";
 
       if (confirm(`Yakin ingin menghapus peserta "${uName}" dari klasemen bersama?`)) {
         if (isMe) {
-          // Clear current user
           state.name = "";
           state.picks = {};
           $("participantName").value = "";
-          if (firebaseDb && isFirebaseOnline) {
-            firebaseDb.ref("pl_predictor/players/" + myUserId).remove();
-          }
         } else {
-          // Remove from local and cloud
           state.otherPlayers = state.otherPlayers.filter(p => (p.id || p.name) !== uId);
-          if (firebaseDb && isFirebaseOnline) {
-            firebaseDb.ref("pl_predictor/players/" + uId).remove();
+        }
+
+        // Delete from Supabase
+        if (supabaseClient && isSupabaseOnline) {
+          try {
+            const { data } = await supabaseClient.from("pl_store").select("value").eq("key", "players").single();
+            const currentPlayers = data?.value || {};
+            delete currentPlayers[uId];
+            await supabaseClient.from("pl_store").upsert({
+              key: "players",
+              value: currentPlayers,
+              updated_at: new Date().toISOString()
+            });
+          } catch (e) {
+            console.error("Supabase delete user error:", e);
           }
         }
+
         saveState();
         renderMatches();
         renderLeaderboard();
@@ -1988,9 +2102,9 @@ function savePredictions() {
   }
   state.name = name;
   saveState();
-  pushMyPicksToCloud();
+  pushMyPicksToSupabase();
   const count = FIXTURES.filter(f => state.picks[f.id]).length;
-  showNotice(`✅ Berhasil menyimpan! ${count} dari ${FIXTURES.length} laga dipilih atas nama "${name}"${isFirebaseOnline ? ' (Tersinkron ke Cloud)' : ''}.`);
+  showNotice(`✅ Berhasil menyimpan! ${count} dari ${FIXTURES.length} laga dipilih atas nama "${name}"${isSupabaseOnline ? ' (Tersinkron ke Supabase Cloud)' : ''}.`);
   renderLeaderboard();
   renderAdminUsers();
 }
@@ -2004,7 +2118,7 @@ $("saveNameBtn").addEventListener("click", () => {
   }
   state.name = val;
   saveState();
-  pushMyPicksToCloud();
+  pushMyPicksToSupabase();
   renderLeaderboard();
   renderAdminUsers();
   showNotice(`Nama "${val}" tersimpan.`);
@@ -2017,7 +2131,7 @@ $("resetMyPicksBtn").addEventListener("click", () => {
   if (confirm("Reset semua pilihan pertandingan kamu?")) {
     state.picks = {};
     saveState();
-    pushMyPicksToCloud();
+    pushMyPicksToSupabase();
     renderMatches();
     renderLeaderboard();
     renderAdminUsers();
@@ -2099,72 +2213,64 @@ $("lockAdminBtn").addEventListener("click", () => {
   showNotice("🔒 Dashboard admin telah dikunci.");
 });
 
-// ADMIN ACTIONS: FIREBASE CONFIG
-$("saveFirebaseConfigBtn").addEventListener("click", () => {
-  const raw = $("firebaseConfigInput").value.trim();
-  if (!raw) {
-    showNotice("Masukkan konfigurasi Firebase terlebih dahulu!", true);
+// ADMIN ACTIONS: SUPABASE CONFIG
+$("saveSupabaseConfigBtn").addEventListener("click", async () => {
+  const url = $("supabaseUrlInput").value.trim();
+  const key = $("supabaseKeyInput").value.trim();
+
+  if (!url || !key) {
+    showNotice("Masukkan Project URL & Anon Key Supabase terlebih dahulu!", true);
     return;
   }
 
-  try {
-    let cfg;
-    // Attempt parse JSON or JS object
-    if (raw.startsWith("{") && raw.endsWith("}")) {
-      try {
-        cfg = JSON.parse(raw);
-      } catch (err) {
-        // Evaluate as JS object literal
-        cfg = Function('"use strict";return (' + raw + ')')();
-      }
-    } else {
-      throw new Error("Format tidak valid");
-    }
-
-    if (!cfg.databaseURL) {
-      showNotice("Konfigurasi harus menyertakan 'databaseURL' (Realtime Database)!", true);
-      return;
-    }
-
-    localStorage.setItem(FB_CONFIG_KEY, JSON.stringify(cfg));
-    const ok = initFirebaseSync(cfg);
-    if (ok) {
-      showNotice("✅ Firebase Realtime Database berhasil terhubung! Data kini tersinkron global.");
-    } else {
-      showNotice("Gagal menghubungkan ke Firebase. Periksa config Anda.", true);
-    }
-  } catch (err) {
-    showNotice("Format config tidak valid! Pastikan format JSON / Objek benar.", true);
+  localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify({ url, key }));
+  showNotice("Menghubungkan ke Supabase...");
+  const ok = await initSupabaseSync(url, key);
+  if (ok) {
+    showNotice("✅ Supabase berhasil terhubung! Database kini live-sync ke seluruh pemain.");
   }
 });
 
-$("testFirebaseBtn").addEventListener("click", () => {
-  if (firebaseDb && isFirebaseOnline) {
-    firebaseDb.ref(".info/connected").once("value", snap => {
-      if (snap.val() === true) {
-        showNotice("🟢 Koneksi ke Firebase Realtime Database normal & aktif!");
-      } else {
-        showNotice("🟡 Terhubung namun status idle / offline.", true);
-      }
-    });
+$("testSupabaseBtn").addEventListener("click", async () => {
+  if (supabaseClient && isSupabaseOnline) {
+    const { data, error } = await supabaseClient.from("pl_store").select("key");
+    if (!error) {
+      showNotice("🟢 Koneksi ke Supabase normal & aktif! Real-time siap.");
+    } else {
+      showNotice("⚠️ Supabase terhubung tapi tabel error: " + error.message, true);
+    }
   } else {
-    showNotice("Database belum terhubung. Silakan simpan config Firebase.", true);
+    showNotice("Database belum terhubung. Masukkan URL & Key Supabase.", true);
   }
 });
 
-$("clearFirebaseConfigBtn").addEventListener("click", () => {
-  if (confirm("Putuskan koneksi Firebase? Aplikasi akan kembali ke mode lokal.")) {
-    localStorage.removeItem(FB_CONFIG_KEY);
-    firebaseDb = null;
-    isFirebaseOnline = false;
-    $("firebaseConfigInput").value = "";
+$("clearSupabaseConfigBtn").addEventListener("click", () => {
+  if (confirm("Putuskan koneksi Supabase? Aplikasi akan kembali ke mode lokal.")) {
+    localStorage.removeItem(SUPABASE_CONFIG_KEY);
+    supabaseClient = null;
+    isSupabaseOnline = false;
+    $("supabaseUrlInput").value = "";
+    $("supabaseKeyInput").value = "";
     updateSyncBadge(false);
-    showNotice("Koneksi Firebase diputus. Kembali ke mode lokal.");
+    showNotice("Koneksi Supabase diputus. Kembali ke mode lokal.");
   }
+});
+
+// SQL HELPER TOGGLE & COPY
+$("toggleSqlHelperBtn").addEventListener("click", () => {
+  const b = $("sqlHelperBox");
+  b.style.display = b.style.display === "none" ? "block" : "none";
+});
+
+$("copySqlBtn").addEventListener("click", () => {
+  const text = $("sqlCodeSnippet").value;
+  navigator.clipboard.writeText(text).then(() => {
+    showNotice("📋 Perintah SQL berhasil disalin! Jalankan di SQL Editor Supabase.");
+  });
 });
 
 // ADMIN ACTIONS: DEADLINE
-$("saveDeadlineBtn").addEventListener("click", () => {
+$("saveDeadlineBtn").addEventListener("click", async () => {
   const val = $("adminDeadlineInput").value;
   if (!val) {
     showNotice("Pilih tanggal dan jam batas waktu terlebih dahulu!", true);
@@ -2174,8 +2280,12 @@ $("saveDeadlineBtn").addEventListener("click", () => {
   state.deadline = iso;
   saveState();
 
-  if (firebaseDb && isFirebaseOnline) {
-    firebaseDb.ref("pl_predictor/config/deadline").set(iso);
+  if (supabaseClient && isSupabaseOnline) {
+    await supabaseClient.from("pl_store").upsert({
+      key: "config",
+      value: { deadline: iso },
+      updated_at: new Date().toISOString()
+    });
   }
 
   updateDeadlineUI();
@@ -2183,13 +2293,17 @@ $("saveDeadlineBtn").addEventListener("click", () => {
   showNotice("✅ Batas waktu prediksi berhasil diperbarui & disiarkan ke semua pemain!");
 });
 
-$("resetDeadlineBtn").addEventListener("click", () => {
+$("resetDeadlineBtn").addEventListener("click", async () => {
   state.deadline = "";
   $("adminDeadlineInput").value = "";
   saveState();
 
-  if (firebaseDb && isFirebaseOnline) {
-    firebaseDb.ref("pl_predictor/config/deadline").remove();
+  if (supabaseClient && isSupabaseOnline) {
+    await supabaseClient.from("pl_store").upsert({
+      key: "config",
+      value: { deadline: "" },
+      updated_at: new Date().toISOString()
+    });
   }
 
   updateDeadlineUI();
@@ -2198,7 +2312,7 @@ $("resetDeadlineBtn").addEventListener("click", () => {
 });
 
 // ADMIN ACTIONS: HAPUS USER DEMO
-$("clearDemoUsersBtn").addEventListener("click", () => {
+$("clearDemoUsersBtn").addEventListener("click", async () => {
   if (confirm("Hapus semua user demo bawaan sistem (Dimas, Rizky, Nadia)?")) {
     state.otherPlayers = state.otherPlayers.filter(p => !p.isDemo);
     saveState();
@@ -2209,7 +2323,7 @@ $("clearDemoUsersBtn").addEventListener("click", () => {
 });
 
 // ADMIN ACTIONS: SCORES
-$("saveAllScoresBtn").addEventListener("click", () => {
+$("saveAllScoresBtn").addEventListener("click", async () => {
   const newScores = {};
   FIXTURES.forEach(f => {
     const hInput = $(`score_h_${f.id}`);
@@ -2225,18 +2339,22 @@ $("saveAllScoresBtn").addEventListener("click", () => {
   state.scores = newScores;
   saveState();
 
-  if (firebaseDb && isFirebaseOnline) {
-    firebaseDb.ref("pl_predictor/scores").set(newScores);
+  if (supabaseClient && isSupabaseOnline) {
+    await supabaseClient.from("pl_store").upsert({
+      key: "scores",
+      value: newScores,
+      updated_at: new Date().toISOString()
+    });
   }
 
   renderMatches();
   renderLeaderboard();
   renderAdminUsers();
-  showNotice("✅ Semua skor pertandingan berhasil disimpan ke cloud! Klasemen semua pemain langsung terupdate.");
+  showNotice("✅ Semua skor pertandingan berhasil disimpan ke Supabase! Klasemen semua pemain langsung terupdate.");
 });
 
 // SIMULATION HELPER: ISI SKOR SIMULASI LENGKAP (10 FT MATCHES)
-$("fillSimulationScoresBtn").addEventListener("click", () => {
+$("fillSimulationScoresBtn").addEventListener("click", async () => {
   const simulationScores = {
     "ips-nfo": { home: 1, away: 2 }, // Tandang menang (2)
     "avl-mci": { home: 1, away: 3 }, // Tandang menang (2)
@@ -2253,8 +2371,12 @@ $("fillSimulationScoresBtn").addEventListener("click", () => {
   state.scores = simulationScores;
   saveState();
 
-  if (firebaseDb && isFirebaseOnline) {
-    firebaseDb.ref("pl_predictor/scores").set(simulationScores);
+  if (supabaseClient && isSupabaseOnline) {
+    await supabaseClient.from("pl_store").upsert({
+      key: "scores",
+      value: simulationScores,
+      updated_at: new Date().toISOString()
+    });
   }
 
   renderAdminScores();
@@ -2264,13 +2386,17 @@ $("fillSimulationScoresBtn").addEventListener("click", () => {
   showNotice("⚡ Skor simulasi untuk 10 pertandingan berhasil diisi! Periksa tab Klasemen.");
 });
 
-$("resetScoresBtn").addEventListener("click", () => {
+$("resetScoresBtn").addEventListener("click", async () => {
   if (confirm("Kosongkan semua skor pertandingan?")) {
     state.scores = {};
     saveState();
 
-    if (firebaseDb && isFirebaseOnline) {
-      firebaseDb.ref("pl_predictor/scores").remove();
+    if (supabaseClient && isSupabaseOnline) {
+      await supabaseClient.from("pl_store").upsert({
+        key: "scores",
+        value: {},
+        updated_at: new Date().toISOString()
+      });
     }
 
     renderAdminScores();
