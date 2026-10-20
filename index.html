@@ -18,7 +18,6 @@
   --text-main: #0f172a;
   --text-muted: #64748b;
   --text-light: #94a3b8;
-  --pl-purple: #38003c;
   --green: #10b981;
   --green-hover: #059669;
   --green-light: #ecfdf5;
@@ -29,9 +28,12 @@
   --gold-text: #92400e;
   --red: #ef4444;
   --red-light: #fef2f2;
+  --red-border: #fecaca;
   --red-text: #991b1b;
   --blue: #3b82f6;
   --blue-light: #eff6ff;
+  --purple: #8b5cf6;
+  --purple-light: #f5f3ff;
   --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
   --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
   --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
@@ -114,7 +116,7 @@ button { cursor: pointer; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
+  padding: 7px 14px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
@@ -129,14 +131,33 @@ button { cursor: pointer; }
 }
 
 .pill-admin {
-  background: #fdf4ff;
-  color: #86198f;
-  border: 1px solid #f5d0fe;
+  background: #ffffff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
 }
+
 .pill-admin:hover {
-  background: #fae8ff;
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+  transform: translateY(-1px);
+}
+
+.pill-admin.logged-in {
+  background: #ede9fe;
+  color: #5b21b6;
+  border-color: #a78bfa;
+}
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, border-color 0.2s;
 }
 
 /* BENTO HERO SECTION */
@@ -145,14 +166,6 @@ button { cursor: pointer; }
   grid-template-columns: 1.6fr 1fr;
   gap: 18px;
   margin-bottom: 24px;
-}
-
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s, border-color 0.2s;
 }
 
 .hero-main {
@@ -330,6 +343,12 @@ button { cursor: pointer; }
   background: #dc2626;
 }
 
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
 .rules-mini {
   background: var(--bg-subtle);
   border-radius: var(--radius-md);
@@ -411,7 +430,7 @@ button { cursor: pointer; }
 .deadline-countdown.locked {
   background: var(--red-light);
   color: var(--red-text);
-  border-color: #fecaca;
+  border-color: var(--red-border);
 }
 
 /* TABS */
@@ -463,7 +482,7 @@ button { cursor: pointer; }
 .notice.show { display: block; }
 .notice.error {
   background: var(--red-light);
-  border-color: #fecaca;
+  border-color: var(--red-border);
   color: var(--red-text);
 }
 
@@ -549,17 +568,19 @@ button { cursor: pointer; }
   background: #f1f5f9;
   color: #0f172a;
   border: 1px solid #cbd5e1;
+  font-weight: 800;
 }
 
 .match-badge.locked {
   background: var(--red-light);
   color: var(--red-text);
+  border: 1px solid var(--red-border);
 }
 
 /* TEAMS ROW */
 .teams-grid {
   display: grid;
-  grid-template-columns: 1fr 60px 1fr;
+  grid-template-columns: 1fr 70px 1fr;
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
@@ -618,10 +639,10 @@ button { cursor: pointer; }
   font-weight: 800;
   color: var(--text-main);
   letter-spacing: 0.05em;
-  background: var(--bg-subtle);
-  padding: 2px 8px;
-  border-radius: 6px;
-  margin-top: 2px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 3px 10px;
+  border-radius: 8px;
 }
 
 /* 1 X 2 BUTTONS */
@@ -642,6 +663,7 @@ button { cursor: pointer; }
   justify-content: center;
   transition: all 0.15s ease;
   color: var(--text-main);
+  position: relative;
 }
 
 .pick-btn .pick-symbol {
@@ -673,20 +695,50 @@ button { cursor: pointer; }
   font-weight: 700;
 }
 
+/* When match is FT */
 .pick-btn.correct-pick {
-  background: #dcfce7;
-  border-color: #22c55e;
+  background: #dcfce7 !important;
+  border-color: #16a34a !important;
+  color: #15803d !important;
+  font-weight: 800;
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
+}
+
+.pick-btn.correct-pick::after {
+  content: "✓";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 11px;
+  font-weight: 900;
   color: #15803d;
 }
 
 .pick-btn.wrong-pick {
-  opacity: 0.4;
-  text-decoration: line-through;
+  background: #fee2e2 !important;
+  border-color: #ef4444 !important;
+  color: #991b1b !important;
+  opacity: 0.75;
+}
+
+.pick-btn.wrong-pick::after {
+  content: "✗";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 11px;
+  font-weight: 900;
+  color: #ef4444;
+}
+
+.pick-btn.winner-outline {
+  border-color: #10b981;
+  background: #f0fdf4;
 }
 
 .pick-btn:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .match-footer {
@@ -815,7 +867,7 @@ button { cursor: pointer; }
 
 /* ADMIN PANEL STYLING */
 .admin-card {
-  border-left: 4px solid #8b5cf6;
+  border-left: 4px solid var(--purple);
   margin-bottom: 24px;
 }
 
@@ -824,6 +876,8 @@ button { cursor: pointer; }
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .admin-grid {
@@ -851,13 +905,83 @@ button { cursor: pointer; }
 }
 
 .score-input {
-  width: 44px;
+  width: 46px;
   text-align: center;
   padding: 6px;
   border: 1px solid var(--border);
   border-radius: 6px;
   font-weight: 800;
   font-size: 14px;
+  background: #ffffff;
+}
+
+/* USER MANAGEMENT TABLE */
+.user-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.user-table th {
+  background: var(--bg-subtle);
+  padding: 10px 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.user-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-main);
+}
+
+.user-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* MODAL STYLES */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-width: 400px;
+  width: 100%;
+  padding: 26px;
+  border: 1px solid var(--border);
+  animation: scaleUp 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 /* RESPONSIVE */
@@ -913,16 +1037,40 @@ button { cursor: pointer; }
     </div>
   </header>
 
-  <!-- ADMIN SECTION (TOGGLEABLE) -->
+  <!-- PASSWORD AUTH MODAL -->
+  <div class="modal-overlay" id="adminAuthModal" style="display:none">
+    <div class="modal-card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:42px;height:42px;border-radius:12px;background:#f5f3ff;color:#6d28d9;display:grid;place-items:center;font-size:20px">🔒</div>
+        <div>
+          <h3 style="font-size:16px;font-weight:800;color:var(--text-main)">Akses Dashboard Admin</h3>
+          <p style="font-size:12px;color:var(--text-muted)">Masukkan password admin untuk masuk.</p>
+        </div>
+      </div>
+      <div style="margin-bottom:14px">
+        <input type="password" id="adminPasswordInput" class="field" placeholder="Masukkan password admin..." maxlength="20" autofocus>
+        <p id="adminAuthError" style="color:var(--red);font-size:12px;font-weight:600;display:none;margin-top:6px">❌ Password salah! Silakan coba lagi.</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="adminLoginSubmitBtn" style="flex:1">Masuk Admin</button>
+        <button class="btn btn-secondary" id="adminLoginCancelBtn">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN SECTION (PASSWORD PROTECTED) -->
   <section class="card panel admin-card" id="adminSection" style="display:none;">
     <div class="admin-header">
       <div>
-        <h3 style="color:#6d28d9">⚙️ Pengaturan Admin</h3>
-        <p class="panel-sub">Atur batas waktu prediksi & upload skor akhir pertandingan.</p>
+        <h3 style="color:#6d28d9">⚙️ Pengaturan Admin (Akses Terbuka)</h3>
+        <p class="panel-sub">Atur batas waktu prediksi, kelola peserta, & upload skor akhir pertandingan.</p>
       </div>
-      <button class="btn btn-secondary" id="closeAdminBtn" style="padding:6px 12px;font-size:12px">Tutup Admin</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" id="lockAdminBtn">🔒 Kunci & Tutup Admin</button>
+      </div>
     </div>
 
+    <!-- ADMIN GRID: DEADLINE & MANAGEMENT -->
     <div class="admin-grid">
       <!-- 1. Batas Waktu -->
       <div style="background:#ffffff;padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border)">
@@ -930,28 +1078,56 @@ button { cursor: pointer; }
         <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Pemain tidak bisa mengubah tebakan setelah waktu ini.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <input type="datetime-local" class="field" id="adminDeadlineInput" style="flex:1;min-width:180px">
-          <button class="btn" id="saveDeadlineBtn">Simpan Batas</button>
-          <button class="btn btn-secondary" id="resetDeadlineBtn">Hapus</button>
+          <button class="btn btn-sm" id="saveDeadlineBtn">Simpan Batas</button>
+          <button class="btn btn-secondary btn-sm" id="resetDeadlineBtn">Hapus</button>
         </div>
       </div>
 
-      <!-- 2. Status & Reset -->
+      <!-- 2. Alat Pengujian & Reset -->
       <div style="background:#ffffff;padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border)">
-        <h4 style="font-size:14px;font-weight:700;margin-bottom:8px">🧹 Manajemen Data</h4>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Reset tebakan lokal atau reset skor pertandingan.</p>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-secondary" id="clearAllPicksBtn">Reset Prediksi Saya</button>
-          <button class="btn btn-danger" id="resetScoresBtn">Kosongkan Semua Skor</button>
+        <h4 style="font-size:14px;font-weight:700;margin-bottom:8px">🧪 Alat Simulasi & Reset</h4>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Uji skenario semua pertandingan selesai atau bersihkan data.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-sm" id="fillSimulationScoresBtn" style="background:#6366f1">⚡ Isi Skor Simulasi (10 Match FT)</button>
+          <button class="btn btn-danger btn-sm" id="resetScoresBtn">Kosongkan Semua Skor</button>
         </div>
       </div>
     </div>
 
-    <!-- 3. Upload Skor Manual -->
-    <div style="background:#ffffff;padding:18px;border-radius:var(--radius-sm);border:1px solid var(--border)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <!-- 3. USER MANAGEMENT (HAPUS USER) -->
+    <div style="background:#ffffff;padding:18px;border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
         <div>
-          <h4 style="font-size:14px;font-weight:700">⚽ Upload Skor Pertandingan Manual</h4>
-          <p style="font-size:12px;color:var(--text-muted)">Isi skor akhir pertandingan (FT). Poin pemain akan langsung terhitung otomatis!</p>
+          <h4 style="font-size:14px;font-weight:700">👥 Manajemen Peserta (Hapus User)</h4>
+          <p style="font-size:12px;color:var(--text-muted)">Hapus user bawaan sistem atau peserta yang tidak diinginkan dari klasemen.</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="clearDemoUsersBtn">🗑️ Hapus Semua User Demo Bawaan</button>
+      </div>
+      <div class="user-table-wrap">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nama Peserta</th>
+              <th>Tipe</th>
+              <th>Jumlah Tebakan</th>
+              <th>Poin Saat Ini</th>
+              <th style="text-align:right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="adminUserTableBody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. Upload Skor Manual -->
+    <div style="background:#ffffff;padding:18px;border-radius:var(--radius-sm);border:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div>
+          <h4 style="font-size:14px;font-weight:700">⚽ Upload Skor Pertandingan Manual (FT)</h4>
+          <p style="font-size:12px;color:var(--text-muted)">Isi skor akhir pertandingan. Poin dan klasemen akan langsung dihitung secara otomatis!</p>
         </div>
         <button class="btn" id="saveAllScoresBtn">💾 Simpan Semua Skor</button>
       </div>
@@ -1126,7 +1302,7 @@ const CREST_COLORS = {
   CRY: "#1b458f", NEW: "#241f20", SUN: "#eb172b", LEE: "#1d428a"
 };
 
-// FIXTURES LIST
+// FIXTURES LIST (10 Matchweek 8 Fixtures)
 const FIXTURES = [
   { id: "ips-nfo", home: "Ipswich", away: "Nottingham Forest", h: "IPS", a: "NFO", date: "Sabtu, 24 Okt", time: "02.00 WIB" },
   { id: "avl-mci", home: "Aston Villa", away: "Man City", h: "AVL", a: "MCI", date: "Sabtu, 24 Okt", time: "18.30 WIB" },
@@ -1142,6 +1318,7 @@ const FIXTURES = [
 
 // STATE STORAGE
 const STORAGE_KEY = "pl_predictor_v2_light";
+const ADMIN_PASSWORD = "4312";
 
 // DEFAULT STATE
 let state = {
@@ -1150,9 +1327,9 @@ let state = {
   deadline: "", // ISO string set by admin
   scores: {}, // { matchId: { home: number, away: number } } - set by admin
   otherPlayers: [
-    { name: "Dimas", picks: { "ips-nfo": "away", "avl-mci": "away", "ars-eve": "home", "che-tot": "home", "liv-bri": "home", "mun-bou": "home" } },
-    { name: "Rizky", picks: { "ips-nfo": "draw", "avl-mci": "home", "ars-eve": "home", "che-tot": "away", "liv-bri": "home", "mun-bou": "draw" } },
-    { name: "Nadia", picks: { "ips-nfo": "home", "avl-mci": "away", "ars-eve": "home", "che-tot": "draw", "liv-bri": "home", "mun-bou": "away" } }
+    { id: "user-1", name: "Dimas", isDemo: true, picks: { "ips-nfo": "away", "avl-mci": "away", "ars-eve": "home", "che-tot": "home", "liv-bri": "home", "mun-bou": "home" } },
+    { id: "user-2", name: "Rizky", isDemo: true, picks: { "ips-nfo": "draw", "avl-mci": "home", "ars-eve": "home", "che-tot": "away", "liv-bri": "home", "mun-bou": "draw" } },
+    { id: "user-3", name: "Nadia", isDemo: true, picks: { "ips-nfo": "home", "avl-mci": "away", "ars-eve": "home", "che-tot": "draw", "liv-bri": "home", "mun-bou": "away" } }
   ]
 };
 
@@ -1185,11 +1362,12 @@ function isDeadlineLocked() {
 
 function getMatchResult(matchId) {
   const score = state.scores[matchId];
-  if (!score || score.home === null || score.away === null || score.home === undefined || score.away === undefined) {
+  if (!score || score.home === null || score.away === null || score.home === undefined || score.away === undefined || score.home === "" || score.away === "") {
     return null; // Not played yet
   }
   const h = Number(score.home);
   const a = Number(score.away);
+  if (isNaN(h) || isNaN(a)) return null;
   if (h > a) return "home";
   if (h < a) return "away";
   return "draw";
@@ -1209,20 +1387,21 @@ function showNotice(msg, isError = false) {
 
 // RENDER MATCHES
 function renderMatches() {
-  const locked = isDeadlineLocked();
+  const deadlinePassed = isDeadlineLocked();
   const listEl = $("matchList");
 
   listEl.innerHTML = FIXTURES.map(f => {
     const userPick = state.picks[f.id] || "";
     const score = state.scores[f.id];
-    const hasScore = score && score.home !== null && score.home !== undefined && score.away !== null && score.away !== undefined;
+    const hasScore = score !== undefined && score.home !== null && score.home !== undefined && score.home !== "" && score.away !== null && score.away !== undefined && score.away !== "";
     const actualResult = getMatchResult(f.id);
+    const isLocked = deadlinePassed || hasScore;
 
     // Status badge
     let statusBadge = `<span class="match-badge">Belum Mulai</span>`;
     if (hasScore) {
       statusBadge = `<span class="match-badge ft">FT · Selesai</span>`;
-    } else if (locked) {
+    } else if (deadlinePassed) {
       statusBadge = `<span class="match-badge locked">Terkunci</span>`;
     }
 
@@ -1241,17 +1420,21 @@ function renderMatches() {
     const pickButtons = options.map(opt => {
       let btnClass = `pick-btn ${userPick === opt.val ? "selected" : ""}`;
       
-      // Highlight correct/wrong if score is in
-      if (hasScore && userPick) {
+      // Visual indicators when score is in
+      if (hasScore) {
         if (opt.val === actualResult) {
-          btnClass += " correct-pick";
+          if (userPick === opt.val) {
+            btnClass += " correct-pick"; // user tebak benar
+          } else {
+            btnClass += " winner-outline"; // hasil yang menang
+          }
         } else if (userPick === opt.val) {
-          btnClass += " wrong-pick";
+          btnClass += " wrong-pick"; // user tebak salah
         }
       }
 
       return `
-        <button class="${btnClass}" data-match="${f.id}" data-pick="${opt.val}" ${locked ? "disabled" : ""}>
+        <button class="${btnClass}" data-match="${f.id}" data-pick="${opt.val}" ${isLocked ? "disabled" : ""}>
           <span class="pick-symbol">${opt.sym}</span>
           <span class="pick-label">${opt.lbl}</span>
         </button>
@@ -1260,9 +1443,13 @@ function renderMatches() {
 
     // Footer result info
     let footerResult = `<span>Pilihan: <strong>${userPick ? (userPick === 'home' ? f.home : userPick === 'away' ? f.away : 'Seri') : 'Belum memilih'}</strong></span>`;
-    if (hasScore && userPick) {
-      const isCorrect = userPick === actualResult;
-      footerResult += `<span class="match-result-indicator ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✅ Tepat (+3 pts)' : '❌ Meleset (0 pts)'}</span>`;
+    if (hasScore) {
+      if (userPick) {
+        const isCorrect = userPick === actualResult;
+        footerResult += `<span class="match-result-indicator ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✅ Tebakan Benar (+3 pts)' : '❌ Tebakan Meleset (0 pts)'}</span>`;
+      } else {
+        footerResult += `<span style="color:var(--text-muted);font-weight:600">Tidak ada tebakan</span>`;
+      }
     }
 
     return `
@@ -1297,11 +1484,11 @@ function renderMatches() {
   // Attach click listeners to pick buttons
   listEl.querySelectorAll(".pick-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      if (isDeadlineLocked()) {
-        showNotice("Batas waktu prediksi sudah lewat. Pilihan tidak dapat diubah.", true);
+      const matchId = btn.dataset.match;
+      if (isDeadlineLocked() || getMatchResult(matchId) !== null) {
+        showNotice("Pertandingan ini sudah terkunci atau selesai!", true);
         return;
       }
-      const matchId = btn.dataset.match;
       const pickVal = btn.dataset.pick;
 
       // Toggle pick or change
@@ -1315,6 +1502,7 @@ function renderMatches() {
       renderMatches();
       updateCounts();
       renderLeaderboard();
+      renderAdminUsers();
     });
   });
 
@@ -1336,7 +1524,6 @@ function updateCounts() {
 
 // DEADLINE BANNER & STATUS
 function updateDeadlineUI() {
-  const banner = $("deadlineBanner");
   const title = $("deadlineTitle");
   const desc = $("deadlineDesc");
   const cd = $("deadlineCountdown");
@@ -1379,19 +1566,25 @@ function calculateLeaderboard() {
   // Add current user if name is present
   const myName = (state.name || "").trim() || "Saya (Tamu)";
   players.push({
+    id: "me",
     name: myName,
     picks: state.picks,
-    isMe: true
+    isMe: true,
+    isDemo: false
   });
 
   // Add other players
-  state.otherPlayers.forEach(p => {
-    players.push({
-      name: p.name,
-      picks: p.picks,
-      isMe: false
+  if (Array.isArray(state.otherPlayers)) {
+    state.otherPlayers.forEach(p => {
+      players.push({
+        id: p.id || p.name,
+        name: p.name,
+        picks: p.picks || {},
+        isMe: false,
+        isDemo: !!p.isDemo
+      });
     });
-  });
+  }
 
   // Score each player
   const leaderboard = players.map(p => {
@@ -1410,45 +1603,55 @@ function calculateLeaderboard() {
       }
     });
 
+    const pickedCount = FIXTURES.filter(f => p.picks && p.picks[f.id]).length;
+
     return {
+      id: p.id,
       name: p.name,
       points,
       correct,
       totalPlayed,
-      isMe: p.isMe
+      pickedCount,
+      isMe: p.isMe,
+      isDemo: p.isDemo
     };
   });
 
-  // Sort by points desc, then correct count desc
-  leaderboard.sort((a, b) => b.points - a.points || b.correct - a.correct);
+  // Sort by points desc, then correct count desc, then alphabetically
+  leaderboard.sort((a, b) => b.points - a.points || b.correct - a.correct || a.name.localeCompare(b.name));
   return leaderboard;
 }
 
 // RENDER LEADERBOARD
 function renderLeaderboard() {
   const leaderboard = calculateLeaderboard();
+  const finishedCount = FIXTURES.filter(f => getMatchResult(f.id) !== null).length;
 
   // Mini sidebar (top 3)
   const miniEl = $("miniLeaderboard");
-  miniEl.innerHTML = leaderboard.slice(0, 3).map((p, idx) => `
-    <div class="leader-row">
-      <div class="rank-badge ${idx === 0 ? 'first' : ''}">${idx + 1}</div>
-      <div class="person-info">
-        <div class="avatar">${initials(p.name)}</div>
-        <div>
-          <div class="person-name">${escapeHtml(p.name)} ${p.isMe ? '<small style="color:var(--green-text)">(Kamu)</small>' : ''}</div>
-          <div class="person-meta">${p.correct} tebakan tepat</div>
+  if (leaderboard.length === 0) {
+    miniEl.innerHTML = `<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:12px 0">Belum ada peserta.</p>`;
+  } else {
+    miniEl.innerHTML = leaderboard.slice(0, 3).map((p, idx) => `
+      <div class="leader-row">
+        <div class="rank-badge ${idx === 0 ? 'first' : ''}">${idx + 1}</div>
+        <div class="person-info">
+          <div class="avatar">${initials(p.name)}</div>
+          <div>
+            <div class="person-name">${escapeHtml(p.name)} ${p.isMe ? '<small style="color:var(--green-text)">(Kamu)</small>' : ''}</div>
+            <div class="person-meta">${p.correct} tebakan tepat (${p.points} pts)</div>
+          </div>
         </div>
+        <div class="person-points">${p.points} pts</div>
       </div>
-      <div class="person-points">${p.points} pts</div>
-    </div>
-  `).join("");
+    `).join("");
+  }
 
   // Full leaderboard
   const fullEl = $("fullLeaderboardCard");
   fullEl.innerHTML = `
     <div style="margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border-subtle)">
-      <p style="font-size:13px;color:var(--text-muted)">Total pertandingan yang sudah selesai: <strong>${FIXTURES.filter(f => getMatchResult(f.id) !== null).length} dari ${FIXTURES.length}</strong></p>
+      <p style="font-size:13px;color:var(--text-muted)">Total pertandingan yang sudah selesai: <strong>${finishedCount} dari ${FIXTURES.length}</strong></p>
     </div>
     ${leaderboard.map((p, idx) => `
       <div class="leader-row">
@@ -1457,13 +1660,98 @@ function renderLeaderboard() {
           <div class="avatar">${initials(p.name)}</div>
           <div>
             <div class="person-name">${escapeHtml(p.name)} ${p.isMe ? '<span style="font-size:11px;background:var(--green-light);color:var(--green-text);padding:2px 6px;border-radius:4px;margin-left:4px">Kamu</span>' : ''}</div>
-            <div class="person-meta">${p.correct} benar dari ${p.totalPlayed} pertandingan usai</div>
+            <div class="person-meta">${p.correct} benar dari ${p.totalPlayed} laga FT (${p.pickedCount} tebakan diisi)</div>
           </div>
         </div>
         <div class="person-points" style="font-size:16px">${p.points} <span style="font-size:12px;color:var(--text-muted)">pts</span></div>
       </div>
     `).join("")}
   `;
+}
+
+// RENDER ADMIN USER LIST (HAPUS USER)
+function renderAdminUsers() {
+  const tbody = $("adminUserTableBody");
+  if (!tbody) return;
+
+  const users = [];
+
+  // Current active user
+  const myName = (state.name || "").trim() || "Saya (Tamu)";
+  const myPicksCount = Object.keys(state.picks || {}).length;
+  let myPoints = 0;
+  FIXTURES.forEach(f => {
+    const act = getMatchResult(f.id);
+    if (act !== null && state.picks && state.picks[f.id] === act) myPoints += 3;
+  });
+  users.push({
+    id: "me",
+    name: myName,
+    type: "Kamu (Browser ini)",
+    picksCount: myPicksCount,
+    points: myPoints,
+    isMe: true
+  });
+
+  // Other players
+  if (Array.isArray(state.otherPlayers)) {
+    state.otherPlayers.forEach(p => {
+      let pts = 0;
+      FIXTURES.forEach(f => {
+        const act = getMatchResult(f.id);
+        if (act !== null && p.picks && p.picks[f.id] === act) pts += 3;
+      });
+      users.push({
+        id: p.id || p.name,
+        name: p.name,
+        type: p.isDemo ? "Bawaan Sistem" : "Peserta",
+        picksCount: Object.keys(p.picks || {}).length,
+        points: pts,
+        isMe: false
+      });
+    });
+  }
+
+  tbody.innerHTML = users.map((u, idx) => `
+    <tr>
+      <td style="font-weight:700;color:var(--text-muted)">${idx + 1}</td>
+      <td style="font-weight:700">${escapeHtml(u.name)}</td>
+      <td><span style="font-size:11px;padding:3px 8px;border-radius:6px;background:${u.isMe ? '#ecfdf5' : '#f1f5f9'};color:${u.isMe ? '#065f46' : '#475569'};font-weight:600">${u.type}</span></td>
+      <td>${u.picksCount} / ${FIXTURES.length}</td>
+      <td style="font-weight:800">${u.points} pts</td>
+      <td style="text-align:right">
+        <button class="btn btn-danger btn-sm delete-user-btn" data-id="${u.id}" data-name="${escapeHtml(u.name)}" data-isme="${u.isMe}">
+          🗑️ Hapus
+        </button>
+      </td>
+    </tr>
+  `).join("");
+
+  // Attach delete handlers
+  tbody.querySelectorAll(".delete-user-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const uId = btn.dataset.id;
+      const uName = btn.dataset.name;
+      const isMe = btn.dataset.isme === "true";
+
+      if (confirm(`Yakin ingin menghapus peserta "${uName}" dari klasemen?`)) {
+        if (isMe) {
+          // Clear current user
+          state.name = "";
+          state.picks = {};
+          $("participantName").value = "";
+        } else {
+          // Remove from otherPlayers
+          state.otherPlayers = state.otherPlayers.filter(p => (p.id || p.name) !== uId);
+        }
+        saveState();
+        renderMatches();
+        renderLeaderboard();
+        renderAdminUsers();
+        showNotice(`Peserta "${uName}" berhasil dihapus.`);
+      }
+    });
+  });
 }
 
 function escapeHtml(str) {
@@ -1474,14 +1762,16 @@ function escapeHtml(str) {
 function renderAdminScores() {
   const container = $("adminScoreList");
   container.innerHTML = FIXTURES.map(f => {
-    const sc = state.scores[f.id] || { home: "", away: "" };
+    const sc = state.scores[f.id] || {};
+    const hVal = (sc.home !== undefined && sc.home !== null) ? sc.home : "";
+    const aVal = (sc.away !== undefined && sc.away !== null) ? sc.away : "";
     return `
       <div class="score-upload-item">
         <span style="font-size:13px;font-weight:700">${f.home} vs ${f.away}</span>
         <div class="score-inputs">
-          <input type="number" min="0" max="20" class="score-input" id="score_h_${f.id}" value="${sc.home !== undefined ? sc.home : ''}" placeholder="-">
-          <span>-</span>
-          <input type="number" min="0" max="20" class="score-input" id="score_a_${f.id}" value="${sc.away !== undefined ? sc.away : ''}" placeholder="-">
+          <input type="number" min="0" max="20" class="score-input" id="score_h_${f.id}" value="${hVal}" placeholder="-">
+          <span style="font-weight:700">-</span>
+          <input type="number" min="0" max="20" class="score-input" id="score_a_${f.id}" value="${aVal}" placeholder="-">
         </div>
       </div>
     `;
@@ -1505,9 +1795,10 @@ function savePredictions() {
   const count = FIXTURES.filter(f => state.picks[f.id]).length;
   showNotice(`✅ Berhasil menyimpan! ${count} dari ${FIXTURES.length} pertandingan dipilih atas nama "${name}".`);
   renderLeaderboard();
+  renderAdminUsers();
 }
 
-// EVENT LISTENERS
+// EVENT LISTENERS: NAME & PICKS
 $("saveNameBtn").addEventListener("click", () => {
   const val = $("participantName").value.trim();
   if (!val) {
@@ -1517,6 +1808,7 @@ $("saveNameBtn").addEventListener("click", () => {
   state.name = val;
   saveState();
   renderLeaderboard();
+  renderAdminUsers();
   showNotice(`Nama "${val}" tersimpan.`);
 });
 
@@ -1529,25 +1821,86 @@ $("resetMyPicksBtn").addEventListener("click", () => {
     saveState();
     renderMatches();
     renderLeaderboard();
+    renderAdminUsers();
     showNotice("Semua pilihan prediksi telah direset.");
   }
 });
 
-// ADMIN ACTIONS
+// PASSWORD CHECK & ADMIN PANEL ACCESS
+function isAdminAuthenticated() {
+  return sessionStorage.getItem("pl_admin_auth") === "true";
+}
+
+function openAdminDashboard() {
+  const el = $("adminSection");
+  el.style.display = "block";
+  $("toggleAdminBtn").classList.add("logged-in");
+  $("toggleAdminBtn").textContent = "🔓 Admin Aktif";
+  renderAdminScores();
+  renderAdminUsers();
+  el.scrollIntoView({ behavior: "smooth" });
+}
+
+function closeAdminDashboard() {
+  $("adminSection").style.display = "none";
+  if (!isAdminAuthenticated()) {
+    $("toggleAdminBtn").classList.remove("logged-in");
+    $("toggleAdminBtn").textContent = "⚙️ Panel Admin";
+  }
+}
+
 $("toggleAdminBtn").addEventListener("click", () => {
   const el = $("adminSection");
-  const isHidden = el.style.display === "none";
-  el.style.display = isHidden ? "block" : "none";
-  if (isHidden) {
-    renderAdminScores();
-    el.scrollIntoView({ behavior: "smooth" });
+  if (el.style.display === "block") {
+    closeAdminDashboard();
+    return;
+  }
+
+  // Check if authenticated
+  if (isAdminAuthenticated()) {
+    openAdminDashboard();
+  } else {
+    // Show password modal
+    $("adminPasswordInput").value = "";
+    $("adminAuthError").style.display = "none";
+    $("adminAuthModal").style.display = "grid";
+    setTimeout(() => $("adminPasswordInput").focus(), 100);
   }
 });
 
-$("closeAdminBtn").addEventListener("click", () => {
-  $("adminSection").style.display = "none";
+// Admin login submit
+function handleAdminLogin() {
+  const pass = $("adminPasswordInput").value.trim();
+  if (pass === ADMIN_PASSWORD) {
+    sessionStorage.setItem("pl_admin_auth", "true");
+    $("adminAuthModal").style.display = "none";
+    openAdminDashboard();
+    showNotice("✅ Password benar! Akses dashboard admin dibuka.");
+  } else {
+    $("adminAuthError").style.display = "block";
+    $("adminPasswordInput").focus();
+  }
+}
+
+$("adminLoginSubmitBtn").addEventListener("click", handleAdminLogin);
+$("adminPasswordInput").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") handleAdminLogin();
 });
 
+$("adminLoginCancelBtn").addEventListener("click", () => {
+  $("adminAuthModal").style.display = "none";
+});
+
+// Lock / Logout Admin
+$("lockAdminBtn").addEventListener("click", () => {
+  sessionStorage.removeItem("pl_admin_auth");
+  $("adminSection").style.display = "none";
+  $("toggleAdminBtn").classList.remove("logged-in");
+  $("toggleAdminBtn").textContent = "⚙️ Panel Admin";
+  showNotice("🔒 Dashboard admin telah dikunci.");
+});
+
+// ADMIN ACTIONS: DEADLINE
 $("saveDeadlineBtn").addEventListener("click", () => {
   const val = $("adminDeadlineInput").value;
   if (!val) {
@@ -1570,6 +1923,18 @@ $("resetDeadlineBtn").addEventListener("click", () => {
   showNotice("Batas waktu prediksi dihapus.");
 });
 
+// ADMIN ACTIONS: HAPUS USER DEMO
+$("clearDemoUsersBtn").addEventListener("click", () => {
+  if (confirm("Hapus semua user demo bawaan sistem (Dimas, Rizky, Nadia)?")) {
+    state.otherPlayers = state.otherPlayers.filter(p => !p.isDemo);
+    saveState();
+    renderLeaderboard();
+    renderAdminUsers();
+    showNotice("Semua user bawaan sistem telah dihapus.");
+  }
+});
+
+// ADMIN ACTIONS: SCORES
 $("saveAllScoresBtn").addEventListener("click", () => {
   FIXTURES.forEach(f => {
     const hInput = $(`score_h_${f.id}`);
@@ -1587,7 +1952,32 @@ $("saveAllScoresBtn").addEventListener("click", () => {
   saveState();
   renderMatches();
   renderLeaderboard();
-  showNotice("✅ Semua skor pertandingan berhasil disimpan! Klasemen otomatis diperbarui.");
+  renderAdminUsers();
+  showNotice("✅ Semua skor pertandingan berhasil disimpan! Poin dan klasemen langsung diperbarui.");
+});
+
+// SIMULATION HELPER: ISI SKOR SIMULASI LENGKAP (10 FT MATCHES)
+$("fillSimulationScoresBtn").addEventListener("click", () => {
+  const simulationScores = {
+    "ips-nfo": { home: 1, away: 2 }, // Tandang menang (2)
+    "avl-mci": { home: 1, away: 3 }, // Tandang menang (2)
+    "cov-ful": { home: 0, away: 0 }, // Seri (X)
+    "ars-eve": { home: 3, away: 0 }, // Kandang menang (1)
+    "che-tot": { home: 2, away: 2 }, // Seri (X)
+    "hul-bre": { home: 0, away: 1 }, // Tandang menang (2)
+    "liv-bri": { home: 2, away: 1 }, // Kandang menang (1)
+    "mun-bou": { home: 4, away: 0 }, // Kandang menang (1)
+    "cry-new": { home: 1, away: 1 }, // Seri (X)
+    "sun-lee": { home: 2, away: 0 }  // Kandang menang (1)
+  };
+
+  state.scores = simulationScores;
+  saveState();
+  renderAdminScores();
+  renderMatches();
+  renderLeaderboard();
+  renderAdminUsers();
+  showNotice("⚡ Skor simulasi untuk 10 pertandingan berhasil diisi! Periksa tab Klasemen.");
 });
 
 $("resetScoresBtn").addEventListener("click", () => {
@@ -1597,16 +1987,9 @@ $("resetScoresBtn").addEventListener("click", () => {
     renderAdminScores();
     renderMatches();
     renderLeaderboard();
+    renderAdminUsers();
     showNotice("Semua skor pertandingan dikosongkan.");
   }
-});
-
-$("clearAllPicksBtn").addEventListener("click", () => {
-  state.picks = {};
-  saveState();
-  renderMatches();
-  renderLeaderboard();
-  showNotice("Prediksi kamu telah dibersihkan.");
 });
 
 // TABS SWITCHING
